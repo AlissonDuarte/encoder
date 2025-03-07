@@ -43,4 +43,7 @@ func TestVideoServiceDownload(t *testing.T) {
 
 	err := videoService.Download("encoded-bucket-go-lang")
 	require.Nil(t, err)
+
+	err = videoService.Fragment()
+	require.Nil(t, err)
 }
