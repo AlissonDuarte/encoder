@@ -2,7 +2,6 @@ package database
 
 import (
 	"encoder/domain"
-	"fmt"
 	"log"
 
 	"github.com/jinzhu/gorm"
@@ -48,9 +47,7 @@ func (d *Database) Connect() (*gorm.DB, error) {
 
 	if d.Env != "test" {
 		d.Db, err = gorm.Open(d.DbType, d.Dsn)
-		fmt.Println("aqui")
 	} else {
-		fmt.Println("aqui2")
 		d.Db, err = gorm.Open(d.DbTypeTest, d.DsnTest)
 	}
 

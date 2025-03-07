@@ -4,6 +4,7 @@ import (
 	"context"
 	repositories "encoder/application/repository"
 	"encoder/domain"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -16,6 +17,10 @@ type VideoService struct {
 	VideoReposeitory repositories.VideoRepository
 }
 
+func NewVideoService() VideoService {
+	return VideoService{}
+}
+
 func (v *VideoService) Download(bucketName string) error {
 	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
@@ -25,6 +30,7 @@ func (v *VideoService) Download(bucketName string) error {
 	}
 
 	bkt := client.Bucket(bucketName)
+	fmt.Printf("Downloading %s to %s\n", v.Video.Path, envPath)
 	obj := bkt.Object(v.Video.Path)
 	r, err := obj.NewReader(ctx)
 
