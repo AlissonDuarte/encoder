@@ -1,6 +1,7 @@
 package queue
 
 import (
+	"log"
 	"os"
 	"strconv"
 
@@ -47,7 +48,7 @@ func NewRabbit() *Rabbit {
 	return &rabbit
 }
 
-func (r *Rabbit) Consume() error {
+func (r *Rabbit) Consume(messageChannel chan amqp.Delivery) error {
 	q, err := r.Channel.QueueDeclare(
 		r.ConsumerQueueName,
 		true,
@@ -71,13 +72,35 @@ func (r *Rabbit) Consume() error {
 
 	failOnError(err, "Failed to register a consumer")
 
-	for msg := range incomingMessage {
-		r.Channel.Ack(msg.DeliveryTag, false)
-	}
+	go func() {
+		for message := range incomingMessage {
+			log.Println("Received a message: ", string(message.Body))
+			messageChannel <- message
+		}
+
+		log.Println("Consumer closed")
+		close(messageChannel)
+	}()
 
 	return nil
 }
 
+func (r *Rabbit) Notify(message string, contentType string, exchange string, routingKey string) error {
+	err := r.Channel.Publish(
+		exchange,
+		routingKey,
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: contentType,
+			Body:        []byte(message),
+		})
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func failOnError(err error, msg string) {
 	if err != nil {
 		panic(msg)
