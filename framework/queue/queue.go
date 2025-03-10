@@ -46,3 +46,40 @@ func NewRabbit() *Rabbit {
 
 	return &rabbit
 }
+
+func (r *Rabbit) Consume() error {
+	q, err := r.Channel.QueueDeclare(
+		r.ConsumerQueueName,
+		true,
+		false,
+		false,
+		false,
+		r.Args,
+	)
+
+	failOnError(err, "Failed to declare a queue")
+
+	incomingMessage, err := r.Channel.Consume(
+		q.Name,
+		r.ConsumeName,
+		r.AutoAck,
+		false,
+		false,
+		false,
+		nil,
+	)
+
+	failOnError(err, "Failed to register a consumer")
+
+	for msg := range incomingMessage {
+		r.Channel.Ack(msg.DeliveryTag, false)
+	}
+
+	return nil
+}
+
+func failOnError(err error, msg string) {
+	if err != nil {
+		panic(msg)
+	}
+}

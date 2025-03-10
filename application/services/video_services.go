@@ -14,8 +14,8 @@ import (
 )
 
 type VideoService struct {
-	Video            *domain.Video
-	VideoReposeitory repositories.VideoRepository
+	Video           *domain.Video
+	VideoRepository repositories.VideoRepository
 }
 
 func NewVideoService() VideoService {
@@ -128,5 +128,14 @@ func (v *VideoService) Finalize() error {
 		return err
 	}
 	log.Printf("Finalized %s", v.Video.ID)
+	return nil
+}
+
+func (v *VideoService) InserVideo() error {
+	_, err := v.VideoRepository.Insert(v.Video)
+
+	if err != nil {
+		return err
+	}
 	return nil
 }

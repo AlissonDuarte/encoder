@@ -22,7 +22,7 @@ func TestVideoServiceUpload(t *testing.T) {
 
 	videoService := services.NewVideoService()
 	videoService.Video = video
-	videoService.VideoReposeitory = repo
+	videoService.VideoRepository = repo
 
 	err := videoService.Download("encoded-bucket-go-lang")
 	require.Nil(t, err)
