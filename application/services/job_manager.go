@@ -63,6 +63,13 @@ func (j *JobManager) Start(ch *amqp.Channel) {
 			log.Printf("Error processing job: %v", jobResult.Error)
 			j.notifyError(jobResult)
 
+		} else {
+			err = j.notifySuccess(jobResult, ch)
+		}
+
+		if err != nil {
+			log.Printf("Error processing job: %v", err)
+			jobResult.Message.Reject(false)
 		}
 	}
 }
@@ -81,17 +88,50 @@ func (j *JobManager) notifyError(jobResult JobWorkerResult) error {
 
 	jobJson, err := json.Marshal(jobNotificationError)
 
+	err = j.notify(jobJson)
+
 	if err != nil {
 		return err
 	}
 
-	err = j.Rabbit.Publish(
-		amqp.Publishing{
-			ContentType: "application/json",
-			Body:        jobJson,
-		},
-		"job_error",
+	err = jobResult.Message.Reject(false)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (j *JobManager) notify(jobJson []byte) error {
+	err := j.Rabbit.Notify(
+		string(jobJson),
+		"application/json",
+		os.Getenv("RABBIT_NOTIFICATION_EXCHANGE"),
+		os.Getenv("RABBIT_NOTIFICATION_ROUTING_KEY"),
 	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (j *JobManager) notifySuccess(jobResult JobWorkerResult, ch *amqp.Channel) error {
+
+	jobJson, err := json.Marshal(jobResult.Job)
+
+	if err != nil {
+		return err
+	}
+
+	err = j.notify(jobJson)
+
+	if err != nil {
+		return err
+	}
+
+	err = jobResult.Message.Ack(false)
 
 	if err != nil {
 		return err
