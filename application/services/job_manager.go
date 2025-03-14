@@ -47,11 +47,11 @@ func (j *JobManager) Start(ch *amqp.Channel) {
 		VideoService:  videoService,
 	}
 
-	concurrency, err := strconv.Atoi(os.Getenv("CONCURRRENCY"))
+	concurrency, err := strconv.Atoi(os.Getenv("CONCURRENCY"))
 
 	if err != nil {
 		concurrency = 1
-		log.Fatalf("Error parsing CONCURRRENCY env var: %v", err)
+		log.Fatalf("Error parsing CONCURRENCY env var: %v", err)
 	}
 
 	for i := 0; i < concurrency; i++ {
@@ -60,7 +60,7 @@ func (j *JobManager) Start(ch *amqp.Channel) {
 
 	for jobResult := range j.JobReturn {
 		if jobResult.Error != nil {
-			log.Printf("Error processing job: %v", jobResult.Error)
+			log.Printf("Error processing job1: %v", jobResult.Error)
 			j.notifyError(jobResult)
 
 		} else {
@@ -68,7 +68,7 @@ func (j *JobManager) Start(ch *amqp.Channel) {
 		}
 
 		if err != nil {
-			log.Printf("Error processing job: %v", err)
+			log.Printf("Error processing job2: %v", err)
 			jobResult.Message.Reject(false)
 		}
 	}
@@ -76,13 +76,13 @@ func (j *JobManager) Start(ch *amqp.Channel) {
 
 func (j *JobManager) notifyError(jobResult JobWorkerResult) error {
 	if jobResult.Job.ID != "" {
-		log.Fatalf("Error processing job: %v and tag %v", jobResult.Error, jobResult.Message.DeliveryTag)
+		log.Fatalf("Error processing job3: %v and tag %v", jobResult.Error, jobResult.Message.DeliveryTag)
 	} else {
-		log.Fatalf("Error processing job: %v", jobResult.Error)
+		log.Fatalf("Error processing job4: %v", jobResult.Error)
 	}
 
 	jobNotificationError := JobNotificationError{
-		Message: "Error processing job",
+		Message: "Error processing job5",
 		Error:   jobResult.Error.Error(),
 	}
 

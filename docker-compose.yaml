@@ -19,13 +19,14 @@ services:
       - POSTGRES_DB=encoder
     ports:
       - "5433:5432"
+
   rabbit:
     image: rabbitmq:3-management
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-      RABBITMQ_DEFAULT_VHOST: /
-      RABBITMQ_ERLANG_COOKIE: secret_cookie
+      RABBITMQ_DEFAULT_USER: "rabbitmq"
+      RABBITMQ_DEFAULT_PASS: "rabbitmq"
+      RABBITMQ_DEFAULT_VHOST: "/"
+      RABBITMQ_ERLANG_COOKIE: "secret_cookie"
 
     ports:
       - "15672:15672"

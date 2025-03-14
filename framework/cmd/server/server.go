@@ -59,6 +59,7 @@ func main() {
 
 	defer ch.Close()
 
+	rabbit.Consume(messageChannel)
 	jobManager := services.NewJobManager(dbConnection, messageChannel, jobReturn, rabbit)
 
 	jobManager.Start(ch)

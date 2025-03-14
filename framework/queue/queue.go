@@ -1,6 +1,7 @@
 package queue
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -22,7 +23,7 @@ type Rabbit struct {
 
 func NewRabbit() *Rabbit {
 	rabbitArgs := amqp.Table{}
-	rabbitArgs["x-dead-letter-exchange"] = os.Getenv("RABBIT_DLE")
+	rabbitArgs["x-dead-letter-exchange"] = os.Getenv("RABBIT_DLX")
 
 	rabbit := Rabbit{
 		User:              os.Getenv("RABBIT_DEFAULT_USER"),
@@ -43,6 +44,7 @@ func NewRabbit() *Rabbit {
 func (r *Rabbit) Connect() *amqp.Channel {
 	dsn := "amqp://" + r.User + ":" + r.Password + "@" + r.Host + ":" + r.Port + r.Vhost
 	conn, err := amqp.Dial(dsn)
+	fmt.Printf("Connected to RabbitMQ at %s\n", dsn)
 	failOnError(err, "Failed to connect to RabbitMQ")
 
 	r.Channel, err = conn.Channel()
