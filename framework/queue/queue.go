@@ -3,7 +3,6 @@ package queue
 import (
 	"log"
 	"os"
-	"strconv"
 
 	"github.com/streadway/amqp"
 )
@@ -12,7 +11,7 @@ type Rabbit struct {
 	User              string
 	Password          string
 	Host              string
-	Port              int
+	Port              string
 	Vhost             string
 	ConsumerQueueName string
 	ConsumeName       string
@@ -25,18 +24,11 @@ func NewRabbit() *Rabbit {
 	rabbitArgs := amqp.Table{}
 	rabbitArgs["x-dead-letter-exchange"] = os.Getenv("RABBIT_DLE")
 
-	rabbitPort := os.Getenv("RABBIT_PORT")
-	rabbitPortInt, err := strconv.Atoi(rabbitPort)
-
-	if err != nil {
-		rabbitPortInt = 5672
-	}
-
 	rabbit := Rabbit{
 		User:              os.Getenv("RABBIT_USER"),
 		Password:          os.Getenv("RABBIT_PASSWORD"),
 		Host:              os.Getenv("RABBIT_HOST"),
-		Port:              rabbitPortInt,
+		Port:              os.Getenv("RABBIT_PORT"),
 		Vhost:             os.Getenv("RABBIT_VHOST"),
 		ConsumerQueueName: os.Getenv("RABBIT_CONSUMER_QUEUE_NAME"),
 		ConsumeName:       os.Getenv("RABBIT_CONSUMER_NAME"),
@@ -48,6 +40,16 @@ func NewRabbit() *Rabbit {
 	return &rabbit
 }
 
+func (r *Rabbit) Connect() *amqp.Channel {
+	dsn := "amqp://" + r.User + ":" + r.Password + "@" + r.Host + ":" + r.Port + r.Vhost
+	conn, err := amqp.Dial(dsn)
+	failOnError(err, "Failed to connect to RabbitMQ")
+
+	r.Channel, err = conn.Channel()
+	failOnError(err, "Failed to open a channel")
+
+	return r.Channel
+}
 func (r *Rabbit) Consume(messageChannel chan amqp.Delivery) error {
 	q, err := r.Channel.QueueDeclare(
 		r.ConsumerQueueName,
