@@ -5,6 +5,7 @@ import (
 	"encoder/domain"
 	"encoder/framework/queue"
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -59,6 +60,8 @@ func (j *JobManager) Start(ch *amqp.Channel) {
 	}
 
 	for jobResult := range j.JobReturn {
+		fmt.Println("Job result: ", jobResult)
+		fmt.Println("Job result: ", jobResult.Error)
 		if jobResult.Error != nil {
 			log.Printf("Error processing job1: %v", jobResult.Error)
 			j.notifyError(jobResult)
@@ -76,9 +79,9 @@ func (j *JobManager) Start(ch *amqp.Channel) {
 
 func (j *JobManager) notifyError(jobResult JobWorkerResult) error {
 	if jobResult.Job.ID != "" {
-		log.Fatalf("Error processing job3: %v and tag %v", jobResult.Error, jobResult.Message.DeliveryTag)
+		log.Printf("Error processing job3: %v and tag %v", jobResult.Error, jobResult.Message.DeliveryTag)
 	} else {
-		log.Fatalf("Error processing job4: %v", jobResult.Error)
+		log.Printf("Error processing job4: %v", jobResult.Error)
 	}
 
 	jobNotificationError := JobNotificationError{
@@ -87,15 +90,16 @@ func (j *JobManager) notifyError(jobResult JobWorkerResult) error {
 	}
 
 	jobJson, err := json.Marshal(jobNotificationError)
+	if err != nil {
+		return err
+	}
 
 	err = j.notify(jobJson)
-
 	if err != nil {
 		return err
 	}
 
 	err = jobResult.Message.Reject(false)
-
 	if err != nil {
 		return err
 	}

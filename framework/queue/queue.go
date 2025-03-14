@@ -107,6 +107,6 @@ func (r *Rabbit) Notify(message string, contentType string, exchange string, rou
 }
 func failOnError(err error, msg string) {
 	if err != nil {
-		panic(msg)
+		fmt.Println(msg)
 	}
 }
