@@ -25,11 +25,11 @@ func NewRabbit() *Rabbit {
 	rabbitArgs["x-dead-letter-exchange"] = os.Getenv("RABBIT_DLE")
 
 	rabbit := Rabbit{
-		User:              os.Getenv("RABBIT_USER"),
-		Password:          os.Getenv("RABBIT_PASSWORD"),
-		Host:              os.Getenv("RABBIT_HOST"),
-		Port:              os.Getenv("RABBIT_PORT"),
-		Vhost:             os.Getenv("RABBIT_VHOST"),
+		User:              os.Getenv("RABBIT_DEFAULT_USER"),
+		Password:          os.Getenv("RABBIT_DEFAULT_PASSWORD"),
+		Host:              os.Getenv("RABBIT_DEFAULT_HOST"),
+		Port:              os.Getenv("RABBIT_DEFAULT_PORT"),
+		Vhost:             os.Getenv("RABBIT_DEFAULT_VHOST"),
 		ConsumerQueueName: os.Getenv("RABBIT_CONSUMER_QUEUE_NAME"),
 		ConsumeName:       os.Getenv("RABBIT_CONSUMER_NAME"),
 		AutoAck:           true,

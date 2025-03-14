@@ -18,7 +18,7 @@ services:
       - POSTGRES_PASSWORD=root
       - POSTGRES_DB=encoder
     ports:
-      - "5432:5432"
+      - "5433:5432"
   rabbit:
     image: rabbitmq:3-management
     environment:
