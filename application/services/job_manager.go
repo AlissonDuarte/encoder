@@ -67,7 +67,7 @@ func (j *JobManager) Start(ch *amqp.Channel) {
 			j.notifyError(jobResult)
 
 		} else {
-			err = j.notifySuccess(jobResult, ch)
+			err = j.notifySuccess(jobResult)
 		}
 
 		if err != nil {
@@ -122,9 +122,11 @@ func (j *JobManager) notify(jobJson []byte) error {
 	return nil
 }
 
-func (j *JobManager) notifySuccess(jobResult JobWorkerResult, ch *amqp.Channel) error {
+func (j *JobManager) notifySuccess(jobResult JobWorkerResult) error {
 
+	Mutex.Lock()
 	jobJson, err := json.Marshal(jobResult.Job)
+	Mutex.Unlock()
 
 	if err != nil {
 		return err
