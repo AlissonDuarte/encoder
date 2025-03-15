@@ -33,7 +33,7 @@ func NewRabbit() *Rabbit {
 		Vhost:             os.Getenv("RABBIT_DEFAULT_VHOST"),
 		ConsumerQueueName: os.Getenv("RABBIT_CONSUMER_QUEUE_NAME"),
 		ConsumeName:       os.Getenv("RABBIT_CONSUMER_NAME"),
-		AutoAck:           true,
+		AutoAck:           false,
 		Args:              rabbitArgs,
 		Channel:           nil,
 	}
@@ -90,6 +90,7 @@ func (r *Rabbit) Consume(messageChannel chan amqp.Delivery) error {
 }
 
 func (r *Rabbit) Notify(message string, contentType string, exchange string, routingKey string) error {
+	fmt.Printf("Sending message: %s, contentType: %s, exchange: %s, routingKey: %s\n", message, contentType, exchange, routingKey)
 	err := r.Channel.Publish(
 		exchange,
 		routingKey,
@@ -100,6 +101,7 @@ func (r *Rabbit) Notify(message string, contentType string, exchange string, rou
 			Body:        []byte(message),
 		})
 
+	fmt.Printf("Error do notify: %v\n", err)
 	if err != nil {
 		return err
 	}

@@ -79,9 +79,10 @@ func (j *JobManager) Start(ch *amqp.Channel) {
 
 func (j *JobManager) notifyError(jobResult JobWorkerResult) error {
 	if jobResult.Job.ID != "" {
-		log.Printf("Error processing job3: %v and tag %v", jobResult.Error, jobResult.Message.DeliveryTag)
+		log.Printf("MessageID, %v, Error During the job %v with video %v, error: %v",
+			jobResult.Message.DeliveryTag, jobResult.Job.ID, jobResult.Job.VideoID, jobResult.Error.Error())
 	} else {
-		log.Printf("Error processing job4: %v", jobResult.Error)
+		log.Printf("Error During the job %v, error: %v", jobResult.Job.ID, jobResult.Error.Error())
 	}
 
 	jobNotificationError := JobNotificationError{
@@ -111,7 +112,7 @@ func (j *JobManager) notify(jobJson []byte) error {
 	err := j.Rabbit.Notify(
 		string(jobJson),
 		"application/json",
-		os.Getenv("RABBIT_NOTIFICATION_EXCHANGE"),
+		os.Getenv("RABBIT_NOTIFICATION_EX"),
 		os.Getenv("RABBIT_NOTIFICATION_ROUTING_KEY"),
 	)
 	if err != nil {
